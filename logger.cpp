@@ -3,19 +3,10 @@
 //
 
 #include "logger.h"
-std::string Logger::logFileName;
-Logger* Logger::logThis = NULL;
-std::ofstream Logger::logfile;
-int _vscprintf (const char * format, va_list pargs) {
-    int retval;
-    va_list argcopy;
-    va_copy(argcopy, pargs);
-    retval = vsnprintf(nullptr, 0, format, argcopy);
-    va_end(argcopy);
-    return retval;
-}
 
-const std::string time(){
+Logger* Logger::logger = nullptr;
+
+std::string Logger::formatted_time() {
     time_t rawtime;
     struct tm * timeinfo;
     char buffer[80];
@@ -23,71 +14,63 @@ const std::string time(){
     time (&rawtime);
     timeinfo = localtime(&rawtime);
 
-    strftime(buffer,sizeof(buffer),"%d-%m-%Y %I:%M:%S",timeinfo);
+    strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
     std::string str(buffer);
     return str;
 }
 
-Logger::Logger() { logFileName = "Logicon.log"; }
+void Logger::logEntry(std::string entry_type, const char * format, va_list args) {
+    assert(logger != nullptr && "Logger must be initialized using Logger::init before usage");
 
-Logger* Logger::getLogger(){
-    if (logThis == nullptr){
-        logThis = new Logger();
-        logfile.open(logFileName.c_str(), std::ios::out | std::ios::app);
-    }
-    return logThis;
+    int log_msg_len = vsnprintf(nullptr, 0, format, args) + 1;
+    char* log_msg = new char[log_msg_len];
+    
+    vsnprintf(log_msg, log_msg_len, format, args);
+    logger->logFile << formatted_time() << "[" << entry_type << "]:\t";
+    logger->logFile << log_msg << "\n";
+
+    delete [] log_msg;
 }
 
-void Logger::info(const char * format, ...)
-{
-    char* sMessage = nullptr;
-    int nLength = 0;
+void Logger::debug(const char * format, ...) {
     va_list args;
     va_start(args, format);
-    nLength = _vscprintf(format, args) + 1;
-    sMessage = new char[nLength];
-    vsnprintf(sMessage, nLength, format, args);
-    logfile << time() << "[INFO]:\t";
-    logfile << sMessage << "\n";
+    logEntry("DEBUG", format, args);
     va_end(args);
-
-    delete [] sMessage;
 }
-void Logger::err(const char * format, ...)
-{
-    char* sMessage = nullptr;
-    int nLength = 0;
+
+void Logger::info(const char * format, ...) {
     va_list args;
     va_start(args, format);
-    nLength = _vscprintf(format, args) + 1;
-    sMessage = new char[nLength];
-    vsnprintf(sMessage, nLength, format, args);
-    logfile << time() << "[ERR]:\t";
-    logfile << sMessage << "\n";
+    logEntry("INFO", format, args);
     va_end(args);
-
-    delete [] sMessage;
 }
-void Logger::warn(const char * format, ...)
-{
-    char* sMessage = nullptr;
-    int nLength = 0;
+
+void Logger::warn(const char * format, ...) {
     va_list args;
     va_start(args, format);
-    nLength = _vscprintf(format, args) + 1;
-    sMessage = new char[nLength];
-    vsnprintf(sMessage, nLength, format, args);
-    logfile << time() << "[WARN]:\t";
-    logfile << sMessage << "\n";
+    logEntry("WARN", format, args);
     va_end(args);
-
-    delete [] sMessage;
 }
 
-Logger::Logger(std::string path) {
-    if (logThis == nullptr){
-        Logger::logFileName = path;
-        logThis = new Logger();
-        logfile.open(path.c_str(), std::ios::out | std::ios::app);
-    }
+void Logger::err(const char * format, ...) {
+    va_list args;
+    va_start(args, format);
+    logEntry("ERR", format, args);
+    va_end(args);
+}
+
+Logger::Logger(std::string filename) {
+    logFileName = filename;
+    logFile.rdbuf()->pubsetbuf(0, 0); // disable buffering
+    logFile.open(logFileName, std::ios::out | std::ios::app);
+}
+
+void Logger::init() {
+    Logger::init("Logicon.log");
+}
+
+void Logger::init(std::string filename) {
+    assert(logger == nullptr && "Logger must not be initalized multiple times");
+    Logger::logger = new Logger(filename);
 }

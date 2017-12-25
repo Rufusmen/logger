@@ -8,60 +8,83 @@
 #include <iostream>
 #include <cstdarg>
 #include <string>
-#define LOGGER Logger::getLogger()
+#include <cassert>
+
 /**
 *   @brief Singleton Logger Class.
 *   @note Default logger file will be created in the same dir as built project.
-*   @example LOGGER->err(" x var should be: %d and is: %d",x_should,x);
+*   @example Logger::err(" x var should be: %d and is: %d",x_should,x);
 */
 class Logger
 {
 public:
-    explicit Logger(std::string path);
     /**
-    *   @brief Logs info massage
+    *   @brief Logs debug message
     *   @param format string for the message to be logged.
     */
-    void info(const char * format, ...);
+    static void debug(const char * format, ...);
     /**
-    *   @brief Logs error massage
+    *   @brief Logs info message
     *   @param format string for the message to be logged.
     */
-    void err(const char * format, ...);
+    static void info(const char * format, ...);
     /**
-    *   @brief Logs warning massage
+    *   @brief Logs warning message
     *   @param format string for the message to be logged.
     */
-    void warn(const char * format, ...);
+    static void warn(const char * format, ...);
     /**
-    *   @brief Funtion to create the instance of logger class.
-    *   @return singleton object of Clogger class..
+    *   @brief Logs error message
+    *   @param format string for the message to be logged.
     */
-    static Logger* getLogger();
+    static void err(const char * format, ...);
+    /**
+    *   @brief Initialize Logger with default filename
+    */
+    static void init();
+    /**
+    *   @brief Initialize Logger with provided filename
+    *   @param filename filename of log file.
+    */
+    static void init(std::string filename);
 private:
+    /**
+    *   Singleton logger class object pointer.
+    **/
+    static Logger* logger;
     /**
     *    Default constructor for the Logger class.
     */
     Logger();
     /**
+    *    Constructor for the Logger class.
+    *    @param filename filename of log file.
+    */
+    Logger(std::string filename);
+    /**
     *   copy constructor for the Logger class.
     */
-    Logger(const Logger&) = default;;             // copy constructor is private
+    Logger(const Logger&) = default; // copy constructor is private
     /**
     *   assignment operator for the Logger class.
     */
-    Logger& operator=(const Logger&){ return *this; };  // assignment operator is private
+    Logger& operator=(const Logger&){ return *this; }; // assignment operator is private
     /**
     *   Log file name.
     **/
-    static std::string logFileName;
-    /**
-    *   Singleton logger class object pointer.
-    **/
-    static Logger* logThis;
+    std::string logFileName;
     /**
     *   Log file stream object.
     **/
-    static std::ofstream logfile;
+    std::ofstream logFile;
+    /**
+    *   @brief Logs message of provided type
+    *   @param entry_type type of message (ex. debug, warn, err)
+    *   @param format string for the message to be logged
+    *   @param args arguments for format
+    */
+    static void logEntry(std::string entry_type, const char * format, va_list args);
+
+    static std::string formatted_time();
 };
 #endif //LOGICON_LOGGER_H
