@@ -3,15 +3,14 @@
 //
 
 #include "logger.h"
-std::string Logger::logFileName = "log.txt";
+std::string Logger::logFileName;
 Logger* Logger::logThis = NULL;
 std::ofstream Logger::logfile;
-
 int _vscprintf (const char * format, va_list pargs) {
     int retval;
     va_list argcopy;
     va_copy(argcopy, pargs);
-    retval = vsnprintf(NULL, 0, format, argcopy);
+    retval = vsnprintf(nullptr, 0, format, argcopy);
     va_end(argcopy);
     return retval;
 }
@@ -29,13 +28,10 @@ const std::string time(){
     return str;
 }
 
-Logger::Logger()
-{
-
-}
+Logger::Logger() { logFileName = "Logicon.log"; }
 
 Logger* Logger::getLogger(){
-    if (logThis == NULL){
+    if (logThis == nullptr){
         logThis = new Logger();
         logfile.open(logFileName.c_str(), std::ios::out | std::ios::app);
     }
@@ -44,7 +40,7 @@ Logger* Logger::getLogger(){
 
 void Logger::info(const char * format, ...)
 {
-    char* sMessage = NULL;
+    char* sMessage = nullptr;
     int nLength = 0;
     va_list args;
     va_start(args, format);
@@ -59,7 +55,7 @@ void Logger::info(const char * format, ...)
 }
 void Logger::err(const char * format, ...)
 {
-    char* sMessage = NULL;
+    char* sMessage = nullptr;
     int nLength = 0;
     va_list args;
     va_start(args, format);
@@ -74,7 +70,7 @@ void Logger::err(const char * format, ...)
 }
 void Logger::warn(const char * format, ...)
 {
-    char* sMessage = NULL;
+    char* sMessage = nullptr;
     int nLength = 0;
     va_list args;
     va_start(args, format);
@@ -89,7 +85,7 @@ void Logger::warn(const char * format, ...)
 }
 
 Logger::Logger(std::string path) {
-    if (logThis == NULL){
+    if (logThis == nullptr){
         Logger::logFileName = path;
         logThis = new Logger();
         logfile.open(path.c_str(), std::ios::out | std::ios::app);

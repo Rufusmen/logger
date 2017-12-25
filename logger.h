@@ -11,13 +11,13 @@
 #define LOGGER Logger::getLogger()
 /**
 *   @brief Singleton Logger Class.
-*   @note Logger file will be created in the same dir as built project.
+*   @note Default logger file will be created in the same dir as built project.
 *   @example LOGGER->err(" x var should be: %d and is: %d",x_should,x);
 */
 class Logger
 {
 public:
-    Logger(std::string path);
+    explicit Logger(std::string path);
     /**
     *   @brief Logs info massage
     *   @param format string for the message to be logged.
@@ -46,7 +46,7 @@ private:
     /**
     *   copy constructor for the Logger class.
     */
-    Logger(const Logger&){};             // copy constructor is private
+    Logger(const Logger&) = default;;             // copy constructor is private
     /**
     *   assignment operator for the Logger class.
     */
