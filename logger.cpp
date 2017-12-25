@@ -3,9 +3,9 @@
 //
 
 #include "logger.h"
-const string Logger::logFileName = "log.txt";
+std::string Logger::logFileName = "log.txt";
 Logger* Logger::logThis = NULL;
-ofstream Logger::logfile;
+std::ofstream Logger::logfile;
 
 int _vscprintf (const char * format, va_list pargs) {
     int retval;
@@ -37,7 +37,7 @@ Logger::Logger()
 Logger* Logger::getLogger(){
     if (logThis == NULL){
         logThis = new Logger();
-        logfile.open(logFileName.c_str(), ios::out | ios::app);
+        logfile.open(logFileName.c_str(), std::ios::out | std::ios::app);
     }
     return logThis;
 }
@@ -86,4 +86,12 @@ void Logger::warn(const char * format, ...)
     va_end(args);
 
     delete [] sMessage;
+}
+
+Logger::Logger(std::string path) {
+    if (logThis == NULL){
+        Logger::logFileName = path;
+        logThis = new Logger();
+        logfile.open(path.c_str(), std::ios::out | std::ios::app);
+    }
 }

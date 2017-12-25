@@ -2,6 +2,7 @@
 #include "logger.h"
 
 int main() {
+    Logger("nowylog.txt");
     LOGGER->info("Chyba działa");
     int x=5,y=x--;
     LOGGER->err("x jest: %d , a miał byc %d",y,x);

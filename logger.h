@@ -8,7 +8,6 @@
 #include <iostream>
 #include <cstdarg>
 #include <string>
-using namespace std;
 #define LOGGER Logger::getLogger()
 /**
 *   @brief Singleton Logger Class.
@@ -18,6 +17,7 @@ using namespace std;
 class Logger
 {
 public:
+    Logger(std::string path);
     /**
     *   @brief Logs info massage
     *   @param format string for the message to be logged.
@@ -54,7 +54,7 @@ private:
     /**
     *   Log file name.
     **/
-    static const std::string logFileName;
+    static std::string logFileName;
     /**
     *   Singleton logger class object pointer.
     **/
@@ -62,6 +62,6 @@ private:
     /**
     *   Log file stream object.
     **/
-    static ofstream logfile;
+    static std::ofstream logfile;
 };
 #endif //LOGICON_LOGGER_H
